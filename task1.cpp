@@ -7,6 +7,7 @@
 #include <limits.h>
 #include <sys/wait.h>
 #include <fstream>
+#include <fcntl.h>
 
 using namespace std;
 
@@ -145,6 +146,43 @@ void externalCommand(vector<string> inputs){
     else cout << "Error creating fork"<<endl;
 }
 
+//function that handles input and output redirection
+void redirection(vector<string>& inputs, string& inputFile, string& outputFile, bool& append){
+    for (int i=0; i<inputs.size();i++){
+        //check for input redirection
+        if (inputs[i]=="<" && i+1<inputs.size()){
+            inputFile = inputs[i+1];
+            inputs.erase(inputs.begin()+i);
+            inputs.erase(inputs.begin()+i);
+            i--;
+        }
+        //check for output redirection
+        else if (inputs[i]==">" && i+1<inputs.size()){
+            outputFile = inputs[i+1];
+            append = false;
+            inputs.erase(inputs.begin()+i);
+            inputs.erase(inputs.begin()+i);
+            i--;
+        }
+        //check for appending output redirection
+        else if (inputs[i]==">>" && i+1<inputs.size()){
+            outputFile = inputs[i+1];
+            append = true;
+            inputs.erase(inputs.begin()+i);
+            inputs.erase(inputs.begin()+i);
+            i--;
+        }
+    }
+}
+
+//function that restores original input/output format after a redirect
+void restoreRedirect(int savedIn, int savedOut){
+    dup2(savedIn, STDIN_FILENO);
+    dup2(savedOut, STDOUT_FILENO);
+    close(savedIn);
+    close(savedOut);
+}
+
 int main(int argc, char* argv[]){
     string input;
     string inputMethod = "cin";
@@ -174,6 +212,30 @@ int main(int argc, char* argv[]){
         vector<string> inputs = splitWords(input);
         if (inputs.empty()) continue;
 
+        //checking for redirection
+        bool append = false;
+        string inputFile = "";
+        string outputFile = "";
+
+        redirection(inputs, inputFile, outputFile, append);
+        int savedIn = dup(STDIN_FILENO);
+        int savedOut = dup(STDOUT_FILENO);
+
+        if(!inputFile.empty()){
+            int f = open(inputFile.c_str(), O_RDONLY);
+            dup2(f, STDIN_FILENO);
+            close(f);
+        }
+
+        if(!outputFile.empty()){
+            int f;
+            if (append) f = open(outputFile.c_str(), O_WRONLY | O_CREAT | O_APPEND, 0644);
+            else f = open(outputFile.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+
+            dup2(f, STDOUT_FILENO);
+            close(f);
+        }
+
         string command = inputs[0];
 
         if (command=="cd") changeDir(inputs);
@@ -185,6 +247,8 @@ int main(int argc, char* argv[]){
         else if (command == "pause") pauseBuiltIn();
         else if (command == "quit") break;
         else externalCommand(inputs);
+
+        restoreRedirect(savedIn, savedOut);
     }
 
     return 0;
