@@ -1,3 +1,11 @@
-First Line
-Hello World
-Second Line
+Hello World 
+batchtest.txt
+in.txt
+newOut.txt
+out2.txt
+out.txt
+README.md
+run.sh
+setup.sh
+task1
+task1.cpp

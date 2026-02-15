@@ -176,11 +176,11 @@ void redirection(vector<string>& inputs, string& inputFile, string& outputFile, 
 }
 
 //function that restores original input/output format after a redirect
-void restoreRedirect(int savedIn, int savedOut){
-    dup2(savedIn, STDIN_FILENO);
-    dup2(savedOut, STDOUT_FILENO);
-    close(savedIn);
-    close(savedOut);
+void restoreRedirect(int inputSrc, int outputSrc){
+    dup2(inputSrc, STDIN_FILENO);
+    dup2(outputSrc, STDOUT_FILENO);
+    close(inputSrc);
+    close(outputSrc);
 }
 
 int main(int argc, char* argv[]){
@@ -218,8 +218,8 @@ int main(int argc, char* argv[]){
         string outputFile = "";
 
         redirection(inputs, inputFile, outputFile, append);
-        int savedIn = dup(STDIN_FILENO);
-        int savedOut = dup(STDOUT_FILENO);
+        int inputSrc = dup(STDIN_FILENO);
+        int outputSrc = dup(STDOUT_FILENO);
 
         if(!inputFile.empty()){
             int f = open(inputFile.c_str(), O_RDONLY);
@@ -248,8 +248,6 @@ int main(int argc, char* argv[]){
         else if (command == "quit") break;
         else externalCommand(inputs);
 
-        restoreRedirect(savedIn, savedOut);
+        restoreRedirect(inputSrc, outputSrc);
     }
-
-    return 0;
 }

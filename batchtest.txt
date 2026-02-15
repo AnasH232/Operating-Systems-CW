@@ -3,6 +3,6 @@ cd
 dir
 cd ..
 cd
-ls &
-echo "Output from File"
-quit
+ls >> out.txt &
+echo Hello World > out.txt
+sort < in.txt > newOut.txt
