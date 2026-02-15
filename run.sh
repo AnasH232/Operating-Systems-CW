@@ -18,4 +18,4 @@ g++ -std=c++17 -w "$SRC" -o "$OUT"
 
 # Run
 echo "Running $OUT..."
-./"$OUT"
+./"$OUT" "${@:2}"

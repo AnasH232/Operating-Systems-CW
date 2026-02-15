@@ -1,0 +1,8 @@
+cd .devcontainer
+cd
+dir
+cd ..
+cd
+ls &
+echo "Output from File"
+quit
