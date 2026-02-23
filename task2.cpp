@@ -19,7 +19,13 @@ void* countFreq(void* arg){
     int linesPerThread = totalLines/numThreads;
 
     int firstLine = (*id) * linesPerThread;
-    int endLine = firstLine + linesPerThread;
+    int endLine;
+
+    if (*id == numThreads-1){
+        endLine = totalLines;
+    }
+    else endLine = firstLine + linesPerThread;
+
     //loop to separate each word in a line then increment counter of word
     for (int i=firstLine; i<endLine; i++){
         string word = "";
@@ -47,7 +53,9 @@ int main(){
 
     //open text file and store lines in 'lines' vector
     ifstream file("words.txt");
-    while (getline(file, line)) lines.push_back(line);
+    while (getline(file, line)) {
+        lines.push_back(line);
+    }
     file.close();
 
     threadRes.resize(numThreads);
@@ -60,7 +68,9 @@ int main(){
         pthread_create(&threads[i], NULL, countFreq, &ids[i]);
     }
 
-    for (int i=0; i<numThreads; i++) pthread_join(threads[i], NULL);
+    for (int i=0; i<numThreads; i++) {
+        pthread_join(threads[i], NULL);
+    }
 
     //loop to sum up all frequencies and store in totalCount
     for (int i=0; i<numThreads; i++){
@@ -71,5 +81,7 @@ int main(){
 
     //outputting results
     cout << "Word Frequencies: "<<endl;
-    for (auto pair : totalCount) cout << pair.first << " : "<<pair.second<<endl;
+    for (auto pair : totalCount) {
+        cout << pair.first << " : "<<pair.second<<endl;
+    }
 }
