@@ -76,10 +76,17 @@ int main(){
     cout<<"Enter the maximum number of frames: ";
     cin>>maxFrames;
     //simulate aging with different number of frames
+
+    ofstream csv("results.csv");
+    if (!csv) cout<<"Couldn't create csv"<<endl;
+
     for (int f=1;f<=maxFrames;f++){
         int faults =aging(refs, f);
         double faults1000 = ((double)faults/totalRefs) *1000;
 
         cout <<f<< " Frames: "<<faults1000<<" faults per 1000 references"<<endl;
+        csv <<f<<","<<faults1000<<"\n";
     }
+    csv.close();
+    cout<<"csv exported";
 }
