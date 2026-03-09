@@ -13,7 +13,7 @@ int main(){
 
     //resource vectors
     vector<int> E(numResource);
-    vector<int> availableRes(numResource);
+    vector<int> A(numResource);
 
     for(int i=0;i<numResource;i++){
         file>>E[i];
@@ -42,7 +42,7 @@ int main(){
         for (int j=0;j<numProcess;j++){
             sum+= C[j][i];
         }
-        availableRes[i]=E[i]-sum;
+        A[i]=E[i]-sum;
     }
 
     vector<bool> isCompleted(numProcess);
@@ -61,7 +61,7 @@ int main(){
 
             //check if process can be completed with available resources
             for(int j=0; j<numResource;j++){
-                if(R[i][j]>availableRes[j]){
+                if(R[i][j]>A[j]){
                     canComplete = false;
                     break;
                 }
@@ -70,7 +70,7 @@ int main(){
             //return held resources to available
             if (canComplete){
                 for (int j=0;j<numResource;j++){
-                    availableRes[j] += C[i][j];
+                    A[j] += C[i][j];
                 }
                 isCompleted[i]=true;
                 cont=true;
@@ -79,7 +79,7 @@ int main(){
     }
 
     bool deadlock=false;
-
+    //look for deadlocks and output them
     for(int i=0;i<numProcess;i++){
         if(!isCompleted[i]){
             deadlock=true;
