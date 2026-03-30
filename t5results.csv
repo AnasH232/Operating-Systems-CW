@@ -1,0 +1,4 @@
+Algorithm,Average Waiting Time
+FCFS,6.25
+SJF,6.25
+Round Robin,10.75
